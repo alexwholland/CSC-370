@@ -1,5 +1,9 @@
 # Counts the number of steps required to decompose a relation into BCNF.
 
+from fcntl import FD_CLOEXEC
+from re import A
+
+from sqlalchemy import false, true
 from relation import *
 from functional_dependency import *
 
@@ -16,4 +20,8 @@ class ImplementMe:
     # decomposition or -1 if the relations are not a correct decomposition.
     @staticmethod
     def DecompositionSteps( relations, fds ):
+        FD = fds.functional_dependencies
+        for functional_dependency in FD:
+             print(functional_dependency.left_hand_side)
+         #   print(functional_dependency.right_hand_side)
         return -1
