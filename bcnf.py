@@ -13,26 +13,20 @@ class ImplementMe:
     # decomposition or -1 if the relations are not a correct decomposition.
     @staticmethod
     def DecompositionSteps(relations, fds):
-        fdep = fds.functional_dependencies
-        fset = [[] for i in range(len(fdep))]
-        i = 0
-        for fd in fdep:
-            attributes = fd.left_hand_side.union(fd.right_hand_side)
-            if i < len(fdep):
-                fset[i] = Helpers.closure(fds, attributes)
-                i += 1
-        violations, count = Helpers.violations(relations, fset)
-        # print(violations)
-        # print(count)
-        if count == 0:
-            return count
+        rels = relations.relations
+        rset = set()
+        for r in rels:
+            rset.update(r.attributes)
+
+        print(Helpers.decompose(rset, fds))
+
         return 500
 
 class Helpers:
     @staticmethod
-    def closure(fds, dependency):
+    def closure(fds, attributes):
         fdep = fds.functional_dependencies
-        result = set(dependency)
+        result = set(attributes)
         more = True
         while more:
             more = False
@@ -40,20 +34,55 @@ class Helpers:
                 if fd.left_hand_side.issubset(result) and not fd.right_hand_side.issubset(result):
                     result.update(fd.right_hand_side)
                     more = True
+
         return result
 
     @staticmethod
-    def violations(relations, fset):
-        count = 0
-        rels = relations.relations
-        relation = set()
-        for r in rels:
-            relation.update(r.attributes)
+    def violations(relations, fds):
+        fdep = fds.functional_dependencies
+        fset = [[] for i in range(len(fdep))]
+
+        i = 0
+        for fd in fdep:
+            attributes = fd.left_hand_side.union(fd.right_hand_side)
+            if i < len(fdep):
+                fset[i] = Helpers.closure(fds, attributes)
+                i += 1
         
         violations = [[] for i in range(len(fset))]
         for i in range(len(fset)):
-            if relation.difference(fset[i]) != set():
+            if relations.difference(fset[i]) != set():
                 violations[i] = fset[i]
-                count = count + 1
-  
-        return violations, count
+
+        lhs = [FunctionalDependency for i in range(len(violations))]
+        i = 0
+        for fd, v in zip(fdep, violations):
+            if v:
+                lhs[i] = fd
+                i += 1
+        lhs = [i for i in lhs if i is not FunctionalDependency]
+        
+        return lhs
+
+    @staticmethod
+    def project(fds, attributes):
+        fdep = fds.functional_dependencies
+        result = set()
+        for fd in fdep:
+            if fd.left_hand_side.issubset(attributes) and fd.right_hand_side.issubset(attributes):
+                result.add(fd)
+
+        return FDSet(result)
+    
+    @staticmethod
+    def decompose(relations, fds):
+        violations = Helpers.violations(relations, fds)
+        if len(violations) == 0:
+           return relations
+        else:
+            for v in violations:
+                """ c = Helpers.closure(fds, v.left_hand_side.union(v.right_hand_side))
+                R1 = Helpers.decompose(c, Helpers.project(fds, c))
+                R2 = Helpers.decompose(relations.difference(c), Helpers.project(fds, (relations.difference(c)).union(v.left_hand_side)))
+                print(R1, "AND", R2) """
+                print(v)
