@@ -4,6 +4,7 @@ from functional_dependency import *
 # You should implement the static function declared
 # in the ImplementMe class and submit this (and only this!) file.
 # You are welcome to add supporting classes and methods in this file.
+counter = 0
 class ImplementMe:
     # Returns the number of recursive steps required for BCNF decomposition
     #
@@ -14,11 +15,12 @@ class ImplementMe:
     @staticmethod
     def DecompositionSteps(relations, fds):
         rels = relations.relations
-        rset = set()
+        R = set()
         for r in rels:
-            rset.update(r.attributes)
+            R.update(r.attributes)
 
-        print(Helpers.decompose(rset, fds))
+        O = 0
+        print(Helpers.decompose(O, R, fds))
 
         return 500
 
@@ -71,18 +73,21 @@ class Helpers:
         for fd in fdep:
             if fd.left_hand_side.issubset(attributes) and fd.right_hand_side.issubset(attributes):
                 result.add(fd)
-
+        
         return FDSet(result)
     
     @staticmethod
-    def decompose(relations, fds):
-        violations = Helpers.violations(relations, fds)
+    def decompose(O, R, fds):
+        violations = Helpers.violations(R, fds)
         if len(violations) == 0:
-           return relations
+            return R
         else:
-            for v in violations:
-                """ c = Helpers.closure(fds, v.left_hand_side.union(v.right_hand_side))
-                R1 = Helpers.decompose(c, Helpers.project(fds, c))
-                R2 = Helpers.decompose(relations.difference(c), Helpers.project(fds, (relations.difference(c)).union(v.left_hand_side)))
-                print(R1, "AND", R2) """
-                print(v)
+            c = Helpers.closure(fds, violations[0].left_hand_side.union(violations[0].right_hand_side))
+            R1 = c
+            F1 = Helpers.project(fds, R1)
+
+            R2 = R.difference(c).union(violations[0].left_hand_side)
+            F2 = Helpers.project(fds, R2)
+            print("R1: ", R1, "F1: ", F1, end='')
+            print("R2: ", R2, "F2: ", F2)   
+            #return Helpers.decompose(O, R1, F1).union(Helpers.decompose(O, R2, F2))
