@@ -13,17 +13,18 @@ class ImplementMe:
     # decomposition or -1 if the relations are not a correct decomposition.
     @staticmethod
     def DecompositionSteps(relations, fds):
-        R = set()
         L = set()
-        count = 0
+        R = set()
+        relationCount = 0
+
         for r in relations.relations:
             L.update(r.attributes)
-            count = count + 1
+            relationCount += 1
         R.add(Relation(L))
         R = RelationSet(R)
 
         violations = ImplementMe.violations(R, fds)
-        if len(violations) == 0 and count > 1:
+        if len(violations) == 0 and relationCount > 1:
             return -1
         if len(violations) == 0:
             return 0
@@ -35,6 +36,12 @@ class ImplementMe:
 
     @staticmethod
     def closure(fds, attributes):
+        '''
+        Purpose:        Determines the closure of each functional dependency
+
+        Parameters:     fds        - the functional dependenceis
+                        attributes - each attribute in the functional dependency 
+        '''
         result = set(attributes)
         more = True
         while more:
@@ -48,6 +55,13 @@ class ImplementMe:
 
     @staticmethod
     def violations(relations, fds):
+        '''
+        Purpose:        Determine the violations in the functional dependencies
+
+        Paramameters:   relations - the relations provided by the test cases
+
+        Returns:        violations - the violations calculated
+        '''
         violations = []
         for r in relations.relations:
             for fd in fds.functional_dependencies:
@@ -59,6 +73,14 @@ class ImplementMe:
 
     @staticmethod
     def project(fds, attributes):
+        '''
+        Purpose:    Project functional dependencies that contain given attributes 
+
+        parameters: fds        - the functional dependencies
+                    attributes - given attributes
+
+        Returns:    FDSet(result) - the projection
+        '''
         result = set()
         for fd in fds.functional_dependencies:
             if fd.left_hand_side.issubset(attributes) and fd.right_hand_side.issubset(attributes):
@@ -68,9 +90,18 @@ class ImplementMe:
 
     @staticmethod
     def decompose(relations, R, fds):
+        '''
+        Purpose:        Decompose the BCNF
+
+        Parameteres:    relations - relations provided from the test cases. 
+                        R         - the relations combined into one set
+                        fds       - the functional dependencies from the test case in set form
+        
+        Returns:        T - RelationSet, the decomposed relations
+        '''
         violations = ImplementMe.violations(relations, fds)
         c = ImplementMe.closure(fds, violations[0].left_hand_side.union(violations[0].right_hand_side))
-    
+
         R1 = c
         L = set()
         for r in R.relations:
@@ -82,5 +113,4 @@ class ImplementMe:
         T.add(Relation(R1))
         T.add(Relation(R2))
         T = RelationSet(T)
-            
         return T
