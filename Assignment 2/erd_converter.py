@@ -84,7 +84,11 @@ def convert_to_table( erd ):
                         dependencies[[es][0].name].append((es_in_r[0].name, r.name))
             no_table |= {r.name}
             
-        relationship_members[r.name] = [(es.name, getMultiplicity(es, r.name)) for es in es_in_r]
+        #relationship_members[r.name] = [(es.name, getMultiplicity(es, r.name)) for es in es_in_r]
+        temp = []
+        for es in es_in_r:
+            temp.append((es.name, getMultiplicity(es, r.name)))
+            relationship_members[r.name] = temp
         
     # Create tables for entity sets
     entity_sets = list(erd.entity_sets)
@@ -93,12 +97,16 @@ def convert_to_table( erd ):
         entity_set = None
         counter = 0
         for es in entity_sets:
-            if counter > 1000:
-                raise Exception("Too many iterations, ERD dependency cycle (unsupported) likely.")
-            else:
-                counter += 1
+           #if allInList([d[0] for d in dependencies[es.name]], [t.name for t in tables]):
+            temp_d = []
+            for d in dependencies[es.name]:
+                temp_d.append(d[0])
 
-            if allInList([d[0] for d in dependencies[es.name]], [t.name for t in tables]):
+            temp_tables = []
+            for t in tables:
+                temp_tables.append(t.name)
+
+            if allInList(temp_d, temp_tables):
                 entity_set = es
                 entity_sets.remove(es)
                 break
@@ -122,15 +130,29 @@ def convert_to_table( erd ):
         tables += [Table(entity_set.name, attrs, p_keys, f_keys)]
 
     # Implement any relationship that requires a table
-    for rel in [r for r in erd.relationships if r.name not in no_table]:
-        attrs = set(rel.attributes)
-        p_keys = set(rel.primary_key)
-        f_keys = set()
-        for table in [t for t in tables if t.name in [mem[0] for mem in relationship_members[rel.name]]]:
-            attrs |= table.primary_key
-            f_keys |= set([(tuple(table.primary_key), table.name, tuple(table.primary_key))])
-            if [mem for mem in relationship_members[rel.name] if mem[0] == table.name][0][1] == Multiplicity.MANY:
-                p_keys |= table.primary_key
-        tables += [Table(rel.name, attrs, p_keys, f_keys)]
+    #for rel in [r for r in erd.relationships if r.name not in no_table]:
+    for r in erd.relationships:
+        if r.name not in no_table:
+            for rel in [r]:
+                attrs = set(rel.attributes)
+                p_keys = set(rel.primary_key)
+                f_keys = set()
+            #for table in [t for t in tables if t.name in [mem[0] for mem in relationship_members[rel.name]]]:
+            for mem in relationship_members[rel.name]:
+                for t in tables:
+                    if t.name in mem[0]:
+                        for table in [t]:
+                            attrs |= table.primary_key
+                            f_keys |= set([(tuple(table.primary_key), table.name, tuple(table.primary_key))])
+                            #if [mem for mem in relationship_members[rel.name] if mem[0] == table.name][0][1] == Multiplicity.MANY:
+                            test = []
+                            for mem in relationship_members[rel.name]:
+                                if mem[0] == table.name:
+                                    test.append(mem)
+                            if test[0][1] == Multiplicity.MANY:
+                                p_keys |= table.primary_key
+
+        
+            tables += [Table(rel.name, attrs, p_keys, f_keys)]
 
     return Database(tables)
