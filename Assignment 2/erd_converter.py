@@ -74,14 +74,24 @@ def createTable(attrs, f_keys, p_keys, erd, relationship_members, no_table, tabl
                 tables += [Table(rel.name, attrs, p_keys, f_keys)]
     return tables
 
+def noDependencies(entity_sets, dependencies, tables):
+    entity_set = None
+    for es in entity_sets:
+        temp_dependencies, temp_tables = [], []
+        for d in dependencies[es.name]:
+            temp_dependencies.append(d[0])
+        for t in tables:
+            temp_tables.append(t.name)
 
-def convert_to_table(erd):
-    dependencies, relationship_members = {}, {}
-    tables = []
-    no_table = set()
-    
-    dependencies = getParents(dependencies, erd)
+        if allInList(temp_dependencies, temp_tables):
+            entity_set = es
+            entity_sets.remove(es)
+            break
+    return entity_set, entity_sets
 
+
+
+def oneToMany(erd, dependencies, relationship_members, no_table):
     for r in erd.relationships:
         es_in_r = []
         for es in erd.entity_sets:
@@ -95,46 +105,42 @@ def convert_to_table(erd):
                 count += 1
 
         if len(r.primary_key) == 0 and count == 1:
-            es_many, es_one = [], []
+            es_many, es_one = [], []        
             for es in es_in_r:
                 if getMultiplicity(es, r.name) == Multiplicity.MANY:
                     es_many = [es.name][0]
-            for es in es_in_r:
                 if getMultiplicity(es, r.name) == Multiplicity.ONE:
                     es_one.append(es.name)
+           
             for es in es_one:
                 dependencies[es_many].append((es, r.name))
             no_table = no_table.union({r.name})
         elif len(es_in_r) == 1:
-            count = 0
             for es in erd.entity_sets:
                 if r.name in es.supporting_relations:
-                    count += 1
-            if count != 0:
-                for es in erd.entity_sets:
-                    if r.name in es.supporting_relations:
-                        dependencies[[es][0].name].append((es_in_r[0].name, r.name))
+                    dependencies[[es][0].name].append((es_in_r[0].name, r.name))
             no_table = no_table.union({r.name})
         
         temp_es = []
         for es in es_in_r:
             temp_es.append((es.name, getMultiplicity(es, r.name)))
             relationship_members[r.name] = temp_es
+    return no_table, relationship_members, dependencies
+
+
+def convert_to_table(erd):
+    dependencies, relationship_members = {}, {}
+    tables = []
+    no_table = set()
+    
+    dependencies = getParents(dependencies, erd)
+
+    
+    no_table, relationship_members, dependencies = oneToMany(erd, dependencies, relationship_members, no_table)
 
     entity_sets = list(erd.entity_sets)
     while len(entity_sets) != 0:
-        entity_set = None
-        for es in entity_sets:
-            temp_dependencies, temp_tables = [], []
-            for d in dependencies[es.name]:
-               temp_dependencies.append(d[0])
-            for t in tables:
-                temp_tables.append(t.name)
-
-            if allInList(temp_dependencies, temp_tables):
-                entity_set = es
-                entity_sets.remove(es)
-                break
+        entity_set, entity_sets = noDependencies(entity_sets, dependencies, tables)
 
         attrs = set(entity_set.attributes)
         f_keys = set()
