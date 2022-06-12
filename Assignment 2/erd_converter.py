@@ -9,20 +9,42 @@ from table import *
 # by the ERD.
 #
 # @TODO: Implement me!
+
 def getMultiplicity(es, r_name):
+    '''
+    Purpose:    Determines cardinality of entity
+    Parameters: es - entity
+                r_name - entity name
+    Returns:    the multiplicity
+    '''
     temp_con = []
     for con in es.connections:
         if con[0] == r_name:
             temp_con.append(con[1])
     return temp_con[0]
 
-def allInList(dep_names, existing_names):
+
+def inTable(dep_names, existing_names):
+    '''
+    Purpose:    Ensure that all dependency names are available
+    Parameters: dep_name - available dependency names
+                existing_names - all existing dependency names
+    Returns:    True - if dependency names are in existing_names
+                False - otherwise
+    '''
     for name in dep_names:
         if name not in existing_names:
             return False
     return True
 
+
 def getParents(dependencies, erd):
+    '''
+    Purpose:    Get parent dependencies
+    Parameters: dependencies - place to store the parent dependencies
+                erd - the entity relationship diagram
+    Returns:    dependencies - A dictionary of dependencies containing the parents 
+    '''
     for e in erd.entity_sets:
         if len(e.parents) > 0:
             for p in e.parents:
@@ -31,7 +53,19 @@ def getParents(dependencies, erd):
             dependencies[e.name] = []
     return dependencies
 
+
 def getForeignKeys(attrs, f_keys, p_keys, dependencies, entity_set, tables, erd):
+    '''
+    Purpose:    Get the forein keys in the erd
+    Parameters: attrs - erd attributes
+                f_keys - foreign keys
+                p_keys - primary keys
+                dependencies - erd dependencies
+                entity_set - the entities of the erd
+                tables - erd tables
+                erd - the entity relationship diagram
+    Returns:    attrs, f_keys, p_keys
+    '''
     for d in dependencies[entity_set.name]:
             temp_keys = []
             for table in tables:
@@ -45,14 +79,23 @@ def getForeignKeys(attrs, f_keys, p_keys, dependencies, entity_set, tables, erd)
             if d[1] == "isA" or d[1] in entity_set.supporting_relations:
                 p_keys = p_keys.union(keys)
             elif d[1] in entity_set.supporting_relations:
-                temp_rel = []
-                for rel in erd.relationships:
-                    if rel.name == d[1]:
-                        temp_rel.append(rel)
+                temp_rel = [rel for rel in erd.relationships if rel.name == d[1]]
                 attrs = attrs.union(set(temp_rel[0].attributes))
+    
     return attrs, f_keys, p_keys
 
+
 def createTable(attrs, f_keys, p_keys, erd, relationship_members, no_table, tables):
+    '''
+    Purpose:    create a table for relationships
+    Parameters: attrs - erd attributes
+                f_keys - foreign keys
+                p_keys - primary keys
+                erd - the entity relationship diagram
+                relationship_members - dictionary of relationships in erd
+                no_table - set of elements that dont require a table
+                tables - erd tables
+    '''
     for r in erd.relationships:
         if r.name not in no_table:
             for rel in [r]:
@@ -74,7 +117,16 @@ def createTable(attrs, f_keys, p_keys, erd, relationship_members, no_table, tabl
                 tables += [Table(rel.name, attrs, p_keys, f_keys)]
     return tables
 
+
 def noDependencies(entity_sets, dependencies, tables):
+    '''
+    Purpose:    Determine entity sets with no dependencies
+    Parameters: entity_sets - set of erd entities
+                dependencies - dependencies of the erd
+                tables - erd tables
+    Returns:    entity_set - single entity set
+                entity_sets - list of entity sets
+    '''
     entity_set = None
     for es in entity_sets:
         temp_dependencies, temp_tables = [], []
@@ -83,15 +135,22 @@ def noDependencies(entity_sets, dependencies, tables):
         for t in tables:
             temp_tables.append(t.name)
 
-        if allInList(temp_dependencies, temp_tables):
+        if inTable(temp_dependencies, temp_tables):
             entity_set = es
             entity_sets.remove(es)
             break
     return entity_set, entity_sets
 
 
-
 def oneToMany(erd, dependencies, relationship_members, no_table):
+    '''
+    Parameters: Add one to many relationship dependencies
+    Parameters: erd - entity relationship diagram
+                dependencies - erd dependencies 
+                relationship_members - dictionary of relationship members
+                no_table - set of elements that dont require a table
+    Returns:    no_table, relationship_members, dependencie
+    '''
     for r in erd.relationships:
         es_in_r = []
         for es in erd.entity_sets:
@@ -105,15 +164,15 @@ def oneToMany(erd, dependencies, relationship_members, no_table):
                 count += 1
 
         if len(r.primary_key) == 0 and count == 1:
-            es_many, es_one = [], []        
+            esMany, esOne = [], []        
             for es in es_in_r:
                 if getMultiplicity(es, r.name) == Multiplicity.MANY:
-                    es_many = [es.name][0]
+                    esMany = [es.name][0]
                 if getMultiplicity(es, r.name) == Multiplicity.ONE:
-                    es_one.append(es.name)
+                    esOne.append(es.name)
            
-            for es in es_one:
-                dependencies[es_many].append((es, r.name))
+            for es in esOne:
+                dependencies[esMany].append((es, r.name))
             no_table = no_table.union({r.name})
         elif len(es_in_r) == 1:
             for es in erd.entity_sets:
@@ -125,19 +184,21 @@ def oneToMany(erd, dependencies, relationship_members, no_table):
         for es in es_in_r:
             temp_es.append((es.name, getMultiplicity(es, r.name)))
             relationship_members[r.name] = temp_es
+
     return no_table, relationship_members, dependencies
 
 
 def convert_to_table(erd):
+    '''
+    Purpose:    Convert the erd to a table
+    Parameters: erd - The entity relationship diagram
+    Returns:    the tables of the erd
+    '''
     dependencies, relationship_members = {}, {}
     tables = []
     no_table = set()
-    
-    dependencies = getParents(dependencies, erd)
-
-    
+    dependencies = getParents(dependencies, erd)    
     no_table, relationship_members, dependencies = oneToMany(erd, dependencies, relationship_members, no_table)
-
     entity_sets = list(erd.entity_sets)
     while len(entity_sets) != 0:
         entity_set, entity_sets = noDependencies(entity_sets, dependencies, tables)
@@ -147,7 +208,6 @@ def convert_to_table(erd):
         p_keys = set(entity_set.primary_key)
 
         attrs, f_keys, p_keys = getForeignKeys(attrs, f_keys, p_keys, dependencies, entity_set, tables, erd)       
-
         tables += [Table(entity_set.name, attrs, p_keys, f_keys)]
 
     return Database(createTable(attrs, f_keys, p_keys, erd, relationship_members, no_table, tables))
