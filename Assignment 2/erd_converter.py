@@ -24,6 +24,32 @@ def getMultiplicity(es, r_name):
     return temp_con[0]
 
 
+def getManyOrOne(name, es_in_r, esMany, esOne):
+    for es in es_in_r:
+        if getMultiplicity(es, name) == Multiplicity.ONE:
+            esOne.append(es.name)
+        if getMultiplicity(es, name) == Multiplicity.MANY:
+            esMany = [es.name][0]
+    return esMany, esOne
+
+
+def checkMany(ER, name):
+    count = 0
+    for e in ER:
+        if getMultiplicity(e, name) == Multiplicity.MANY:
+            count += 1
+    return count
+
+
+def createEntitySet(erd, name):
+    ER = []
+    for es in erd.entity_sets:
+        for con in es.connections:
+            if name in con[0]:
+                ER.append(es)
+    return ER
+
+
 def inTable(dep_names, existing_names):
     '''
     Purpose:    Ensure that all dependency names are available
@@ -37,6 +63,9 @@ def inTable(dep_names, existing_names):
             return False
     return True
 
+
+def createComponentes(attr, primary):
+    return set(attr), set(), set(primary)
 
 def getParents(dependencies, erd):
     '''
@@ -54,9 +83,20 @@ def getParents(dependencies, erd):
     return dependencies
 
 
-def getForeignKeys(attrs, f_keys, p_keys, dependencies, entity_set, tables, erd):
+def getForeignKeys(f_keys, tables, dependency):
+    temp_keys = []
+    for table in tables:
+        if table.name == dependency[0]:
+            temp_keys.append(table)
+            keys = temp_keys[0].primary_key
+
+    f_keys = f_keys.union(set([(tuple(keys), dependency[0], tuple(keys))])) 
+    return f_keys, keys
+
+
+def getKeys(attrs, f_keys, p_keys, dep, entity_set, tables, erd):
     '''
-    Purpose:    Get the forein keys in the erd
+    Purpose:    Get the keys in the erd
     Parameters: attrs - erd attributes
                 f_keys - foreign keys
                 p_keys - primary keys
@@ -66,14 +106,8 @@ def getForeignKeys(attrs, f_keys, p_keys, dependencies, entity_set, tables, erd)
                 erd - the entity relationship diagram
     Returns:    attrs, f_keys, p_keys
     '''
-    for d in dependencies[entity_set.name]:
-            temp_keys = []
-            for table in tables:
-                if table.name == d[0]:
-                    temp_keys.append(table)
-                    keys = temp_keys[0].primary_key
-
-            f_keys = f_keys.union(set([(tuple(keys), d[0], tuple(keys))]))
+    for d in dep[entity_set.name]:
+            f_keys, keys = getForeignKeys(f_keys, tables, d)
             attrs = attrs.union(keys)
           
             if d[1] == "isA" or d[1] in entity_set.supporting_relations:
@@ -83,6 +117,25 @@ def getForeignKeys(attrs, f_keys, p_keys, dependencies, entity_set, tables, erd)
                 attrs = attrs.union(set(temp_rel[0].attributes))
     
     return attrs, f_keys, p_keys
+
+
+def table(rel, relationship_members, tables):
+    attrs, f_keys, p_keys = createComponentes(rel.attributes, rel.primary_key)
+    for mem in relationship_members[rel.name]:
+            for t in tables:
+                if t.name in mem[0]:
+                    for table in [t]:
+                        attrs = attrs.union(table.primary_key)
+                        f_keys = f_keys.union(set([(tuple(table.primary_key), table.name, tuple(table.primary_key))]))
+
+                        temp_mem = []
+                        for mem in relationship_members[rel.name]:
+                            if mem[0] == table.name:
+                                temp_mem.append(mem)
+                        if temp_mem[0][1] == Multiplicity.MANY:
+                            p_keys = p_keys.union(table.primary_key)
+    tables += [Table(rel.name, attrs, p_keys, f_keys)]
+    return tables
 
 
 def createTable(attrs, f_keys, p_keys, erd, relationship_members, no_table, tables):
@@ -99,22 +152,7 @@ def createTable(attrs, f_keys, p_keys, erd, relationship_members, no_table, tabl
     for r in erd.relationships:
         if r.name not in no_table:
             for rel in [r]:
-                attrs, p_keys, f_keys = set(rel.attributes), set(rel.primary_key), set()
-
-                for mem in relationship_members[rel.name]:
-                    for t in tables:
-                        if t.name in mem[0]:
-                            for table in [t]:
-                                attrs = attrs.union(table.primary_key)
-                                f_keys = f_keys.union(set([(tuple(table.primary_key), table.name, tuple(table.primary_key))]))
-
-                                temp_mem = []
-                                for mem in relationship_members[rel.name]:
-                                    if mem[0] == table.name:
-                                        temp_mem.append(mem)
-                                if temp_mem[0][1] == Multiplicity.MANY:
-                                    p_keys = p_keys.union(table.primary_key)
-                tables += [Table(rel.name, attrs, p_keys, f_keys)]
+                tables = table(rel, relationship_members, tables)
     return tables
 
 
@@ -127,19 +165,21 @@ def noDependencies(entity_sets, dependencies, tables):
     Returns:    entity_set - single entity set
                 entity_sets - list of entity sets
     '''
-    entity_set = None
-    for es in entity_sets:
-        temp_dependencies, temp_tables = [], []
-        for d in dependencies[es.name]:
-            temp_dependencies.append(d[0])
-        for t in tables:
-            temp_tables.append(t.name)
+    for es in entity_sets:        
+        temp_dependencies = [d[0] for d in dependencies[es.name]]
+        temp_tables = [t.name for t in tables]
 
         if inTable(temp_dependencies, temp_tables):
             entity_set = es
             entity_sets.remove(es)
             break
-    return entity_set, entity_sets
+        
+    return entity_set
+
+
+def getRelationshipMembers(relationship_members, ESR, name):
+    relationship_members[name] = [(e.name, getMultiplicity(e, name)) for e in ESR]
+    return relationship_members
 
 
 def oneToMany(erd, dependencies, relationship_members, no_table):
@@ -152,39 +192,23 @@ def oneToMany(erd, dependencies, relationship_members, no_table):
     Returns:    no_table, relationship_members, dependencie
     '''
     for r in erd.relationships:
-        es_in_r = []
-        for es in erd.entity_sets:
-            for con in es.connections:
-                if r.name in con[0]:
-                    es_in_r.append(es)
+        es_in_r = createEntitySet(erd, r.name)
 
-        count = 0
-        for es in es_in_r:
-            if getMultiplicity(es, r.name) == Multiplicity.MANY:
-                count += 1
-
-        if len(r.primary_key) == 0 and count == 1:
-            esMany, esOne = [], []        
-            for es in es_in_r:
-                if getMultiplicity(es, r.name) == Multiplicity.MANY:
-                    esMany = [es.name][0]
-                if getMultiplicity(es, r.name) == Multiplicity.ONE:
-                    esOne.append(es.name)
-           
-            for es in esOne:
-                dependencies[esMany].append((es, r.name))
-            no_table = no_table.union({r.name})
+        if len(r.primary_key) == 0 and checkMany(es_in_r, r.name) == 1:
+            
+                esMany, esOne = [], []
+                esMany, esOne = getManyOrOne(r.name, es_in_r, esMany, esOne)
+            
+                for es in esOne:
+                    dependencies[esMany].append((es, r.name))
+                no_table = no_table.union({r.name})
         elif len(es_in_r) == 1:
             for es in erd.entity_sets:
                 if r.name in es.supporting_relations:
                     dependencies[[es][0].name].append((es_in_r[0].name, r.name))
             no_table = no_table.union({r.name})
         
-        temp_es = []
-        for es in es_in_r:
-            temp_es.append((es.name, getMultiplicity(es, r.name)))
-            relationship_members[r.name] = temp_es
-
+        relationship_members = getRelationshipMembers(relationship_members, es_in_r, r.name)
     return no_table, relationship_members, dependencies
 
 
@@ -201,13 +225,9 @@ def convert_to_table(erd):
     no_table, relationship_members, dependencies = oneToMany(erd, dependencies, relationship_members, no_table)
     entity_sets = list(erd.entity_sets)
     while len(entity_sets) != 0:
-        entity_set, entity_sets = noDependencies(entity_sets, dependencies, tables)
-
-        attrs = set(entity_set.attributes)
-        f_keys = set()
-        p_keys = set(entity_set.primary_key)
-
-        attrs, f_keys, p_keys = getForeignKeys(attrs, f_keys, p_keys, dependencies, entity_set, tables, erd)       
+        entity_set = noDependencies(entity_sets, dependencies, tables)
+        attrs, f_keys, p_keys = createComponentes(entity_set.attributes, entity_set.primary_key)
+        attrs, f_keys, p_keys = getKeys(attrs, f_keys, p_keys, dependencies, entity_set, tables, erd)       
         tables += [Table(entity_set.name, attrs, p_keys, f_keys)]
 
     return Database(createTable(attrs, f_keys, p_keys, erd, relationship_members, no_table, tables))
