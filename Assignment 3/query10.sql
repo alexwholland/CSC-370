@@ -5,7 +5,12 @@
 -- 0.9 marks: <5 operators
 -- 0.8 marks: correct answer
 
--- Replace this comment line with the actual query
-FROM `countylabourstats`
-SELECT `labour_force` = (SELECT MAX(`labour_force`) FROM `countylabourstats`);
-FROM
+-- Solution #2
+-- 2 Operators 
+SELECT MAX(`labour_force`) AS `MaxLabourForce`
+FROM `countylabourstats`;
+
+-- Solution #2
+-- SELECT `labour_force` AS `MaxLabourForce `FROM `countylabourstats`
+    -- ORDER BY `labour_force` DESC
+    -- LIMIT 1;
