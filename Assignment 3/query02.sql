@@ -4,4 +4,9 @@
 -- 1.0 marks: <8 operators
 -- 0.8 marks: correct answer
 
--- Replace this comment line with the actual query
+-- 5 Golf Operators
+SELECT c.*
+FROM county c
+    LEFT JOIN  countyindustries ci ON c.fips = ci.county
+WHERE ci.county is NULL
+ORDER BY c.life_expectancy;
