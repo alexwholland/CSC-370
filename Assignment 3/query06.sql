@@ -7,4 +7,16 @@
 -- 0.9 marks: <20 operators
 -- 0.8 marks: correct answer
 
--- Replace this comment line with the actual query
+SELECT 
+    c.name,
+    s.abbr,
+    ci.employees
+FROM countyindustries ci
+    JOIN industry i ON ci.industry = i.id
+    JOIN county c ON ci.county = c.fips
+    JOIN state s ON c.state = s.id
+WHERE i.name = 'Mining, quarrying, and oil and gas extraction'
+    AND (c.name LIKE '%iron%' 
+        OR c.name LIKE '%ore%' 
+        OR c.name LIKE '%mineral%')
+ORDER BY c.snow;
