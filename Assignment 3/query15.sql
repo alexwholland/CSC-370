@@ -5,5 +5,17 @@
 -- 0.9 marks: <13 operators
 -- 0.8 marks: correct answer
 
-
--- Replace this comment line with the actual query
+-- 7 Golf Operators 
+SELECT 
+    (SUM(MoreFemales = 'TRUE') / (SUM(MoreFemales = 'FALSE') 
+    + SUM(MoreFemales = 'TRUE'))) AS Fraction
+FROM (
+    SELECT gba.county,
+    CASE WHEN gbb.population < gba.population
+    THEN 'TRUE' ELSE 'FALSE' 
+    END AS MoreFemales
+    FROM genderbreakdown gba
+    JOIN genderbreakdown gbb ON gba.county = gbb.county 
+    WHERE gba.gender = 'female'
+    AND gbb.gender = 'male'
+) AS T;
