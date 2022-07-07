@@ -7,17 +7,16 @@
 -- 0.9 marks: <15 operators
 -- 0.8 marks: correct answer
 
--- Replace this comment line with the actual query
+-- 11 Golf Operators
 SELECT 
     c.name,
     s.abbr,
     er.dem,
     er.gop,
-    er.total_votes,
-    er.year
+    er.total_votes
 FROM county c
 JOIN electionresult er ON c.fips = er.county
 JOIN state s ON s.id = c.state
 WHERE er.year = 2016 AND er.total_votes >= 10000
-ORDER BY (er.dem * er.gop) ASC
+ORDER BY (er.dem / er.total_votes) * (er.gop / er.total_votes)
 LIMIT 15;
