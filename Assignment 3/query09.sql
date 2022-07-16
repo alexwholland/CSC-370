@@ -7,5 +7,36 @@
 -- 0.9 marks: <35 operators
 -- 0.8 marks: correct answer
 
-
--- Replace this comment line with the actual query
+-- 21 Golf Operators
+WITH N AS (
+	SELECT 
+        c.state, 
+        SUM(cp.population) AS 'Population' 
+    FROM 
+        countypopulation cp, 
+        county c, 
+        state s
+    WHERE cp.county = c.fips
+        AND c.state = s.id
+        AND cp.year = 2019
+    GROUP BY c.state
+)
+SELECT 
+    s.abbr, 
+    i.name, 
+    SUM(ci.payroll) AS 'Total Payrolls', 
+    ((SUM(ci.employees) / N.Population) * 100) AS '% of Population' 
+FROM 
+    countyindustries ci, 
+    county c, 
+    state s, 
+    industry i, 
+    N
+WHERE ci.county = c.fips
+    AND c.state = s.id
+    AND ci.industry = i.id
+    AND N.state = c.state
+    AND s.abbr != 'DC'
+GROUP BY c.state, ci.industry
+HAVING `% of Population` >= 7.5
+ORDER BY `Total Payrolls` DESC;
