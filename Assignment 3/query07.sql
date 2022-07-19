@@ -5,33 +5,17 @@
 -- 0.9 marks: <16 operators
 -- 0.8 marks: correct answer
 
-
--- 22 Golf Operators 
-
+-- 12 Golf Operators
 SELECT 
-    N.name, 
-    N.2010, 
-    N.population AS '2019', 
-    N.abbr, 
-    ABS(MIN(N.Percentage)) AS 'Loss (%)'
-FROM(
-    SELECT 
-    *, 
-    (N.population - LAG(N.population, 1) 
-    OVER (PARTITION BY N.fips)) / LAG(N.population, 1) 
-    OVER (PARTITION BY N.fips) * 100 AS 'Percentage', 
-    LAG(N.population, 1) 
-    OVER (PARTITION BY N.fips) AS '2010'
-    FROM(
-        SELECT * 
-        FROM county c 
-        JOIN state s ON s.id = c.state 
-        JOIN countypopulation p ON p.county = c.fips
-        WHERE p.year = 2010 OR p.year = 2019
-    ) AS N
-    ORDER BY Percentage ASC
-) AS N
-WHERE N.Percentage = (SELECT(MIN(N.Percentage)))
-LIMIT 1 OFFSET 1;
-
-WHERE N.Percentage = (SELECT(MIN(N.Percentage)))
+    name, 
+    c1.population AS '2010', 
+    c2.population AS '2019', 
+    abbr, 
+    ((c1.population-c2.population)/c1.population)*100 AS 'Loss (%)'
+FROM countypopulation c1
+	LEFT JOIN countypopulation c2 ON c1.county = c2.county
+    JOIN county ON c1.county = fips
+    JOIN state ON state = id
+WHERE c1.year = 2010 AND c2.year = 2019 
+ORDER BY `Loss (%)` DESC
+LIMIT 1
