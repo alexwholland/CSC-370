@@ -12,7 +12,10 @@
 -- 6 Golf Operators
 SELECT DISTINCT 
     s.abbr
-FROM county c, countylabourstats cls, state s
+FROM 
+    county c, 
+    countylabourstats cls, 
+    state s
 WHERE c.fips = cls.county
     AND c.state = s.id
     AND (cls.unemployed / cls.labour_force) > 0.06
