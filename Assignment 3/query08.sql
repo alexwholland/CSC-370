@@ -14,9 +14,14 @@ SELECT
     er.dem,
     er.gop,
     er.total_votes
-FROM county c
-JOIN electionresult er ON c.fips = er.county
-JOIN state s ON s.id = c.state
-WHERE er.year = 2016 AND er.total_votes >= 10000
+FROM 
+    county c, 
+    electionresult er, 
+    state s
+WHERE 
+    c.fips = er.county 
+    AND c.state = s.id 
+    AND er.year = 2016 
+    AND er.total_votes >= 10000
 ORDER BY (er.dem / er.total_votes) * (er.gop / er.total_votes)
 LIMIT 15;
