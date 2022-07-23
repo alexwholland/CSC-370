@@ -5,6 +5,7 @@
 -- 1.0 marks: <4 operators
 -- 0.8 marks: correct answer
 
--- 3 Operators
-SELECT * FROM `county` 
-WHERE `sq_km` > `avg_income` AND `precip` > `temp`;
+-- 3 Golf Operators
+SELECT * 
+FROM county
+WHERE sq_km > avg_income AND precip > temp;
