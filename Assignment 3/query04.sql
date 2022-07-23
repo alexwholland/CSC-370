@@ -5,5 +5,12 @@
 -- 1.0 marks: <9 operators
 -- 0.8 marks: correct answer
 
-
--- Replace this comment line with the actual query
+-- 8 Golf Operators 
+SELECT s.abbr
+FROM state s
+WHERE s.id NOT IN(
+	SELECT c1.state
+	FROM county c1, county c2
+	WHERE c1.fips <> c2.fips
+	AND c1.name = c2.name)
+ORDER BY s.abbr;
