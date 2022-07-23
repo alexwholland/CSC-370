@@ -5,17 +5,22 @@
 -- 0.9 marks: <13 operators
 -- 0.8 marks: correct answer
 
+-- Source: https://tinyurl.com/3294nfsm
 -- 7 Golf Operators 
 SELECT 
-    (SUM(MoreFemales = 'TRUE') / (SUM(MoreFemales = 'FALSE') 
-    + SUM(MoreFemales = 'TRUE'))) AS Fraction
+    (SUM(FmoreThanM = 'yes') / 
+    (SUM(FmoreThanM = 'yes') + SUM(FmoreThanM = 'no'))) AS Fraction
 FROM (
-    SELECT gba.county,
-    CASE WHEN gbb.population < gba.population
-    THEN 'TRUE' ELSE 'FALSE' 
-    END AS MoreFemales
-    FROM genderbreakdown gba
-    JOIN genderbreakdown gbb ON gba.county = gbb.county 
-    WHERE gba.gender = 'female'
+    SELECT 
+        gba.county,
+        CASE WHEN gba.population > gbb.population
+            THEN 'yes' 
+            ELSE 'no' 
+            END AS FmoreThanM
+    FROM 
+        genderbreakdown gba, 
+        genderbreakdown gbb
+    WHERE gba.county = gbb.county
     AND gbb.gender = 'male'
-) AS T;
+    AND gba.gender = 'female'
+) AS Q;
