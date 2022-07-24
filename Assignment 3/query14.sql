@@ -7,22 +7,24 @@
 -- 0.9 marks: <14 operators
 -- 0.8 marks: correct answer
 
--- 12 Golf Operators 
-WITH Q AS (
-    SELECT * 
-    FROM 
-        countypopulation cp, 
-        county c
-    WHERE cp.county = c.fips
+-- 13 Golf Operators 
+WITH Q AS(
+SELECT *
+FROM 
+    countypopulation cp, 
+    county c, 
+    state s
+WHERE cp.county = c.fips
+    AND c.state = s.id 
     AND cp.year = 2018
     AND cp.population >= 25000 
-)
+    )
 SELECT 
     b.name, 
     b.population, 
     a.name, 
-    b.population 
+    a.population
 FROM Q a
-JOIN Q b ON a.county <> b.county AND a.state = b.state
+	JOIN Q b ON a.county <> b.county AND a.state = b.state
 ORDER BY ABS(a.population - b.population)
 LIMIT 1;
