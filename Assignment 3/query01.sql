@@ -13,9 +13,9 @@ SELECT
         WHERE ci.industry = i.id 
         AND ci.county = c.fips
         AND i.name = 'Educational Services')
-    ) AS EC
+    ) AS TotalEmployees
 FROM state s
 JOIN county c ON s.id = c.state
 GROUP BY s.abbr
-ORDER BY EC ASC
+ORDER BY TotalEmployees ASC
 LIMIT 1 OFFSET 25;
