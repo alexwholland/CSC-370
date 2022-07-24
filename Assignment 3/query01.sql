@@ -4,16 +4,18 @@
 -- 1.0 marks: < 11 operators
 -- 0.8 marks: correct answer
 
--- 10 Golf Operators
-SELECT s.abbr,
+-- 11 Golf Operators
+SELECT 
+    s.abbr,
     SUM(
-        (SELECT SUM(i.employees) 
-        FROM countyindustries i 
-        WHERE i.industry = 10 
-        AND i.county = c.fips)
-    ) AS TotalEmployees
+        (SELECT SUM(ci.employees) 
+        FROM countyindustries ci, industry i
+        WHERE ci.industry = i.id 
+        AND ci.county = c.fips
+        AND i.name = 'Educational Services')
+    ) AS EC
 FROM state s
 JOIN county c ON s.id = c.state
 GROUP BY s.abbr
-ORDER BY TotalEmployees ASC
+ORDER BY EC ASC
 LIMIT 1 OFFSET 25;
