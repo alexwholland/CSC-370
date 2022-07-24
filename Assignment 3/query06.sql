@@ -7,35 +7,67 @@
 -- 0.9 marks: <20 operators
 -- 0.8 marks: correct answer
 
--- ~38 Golf Operators 
+-- ~44 Golf Operators 
 WITH Q1 AS(
-    SELECT Q.fips, Q.name AS name, Q.abbr, Q.snow, ci.employees
+    SELECT 
+        Q.fips, 
+        Q.name AS 'name', 
+        Q.abbr, 
+        Q.snow, 
+        ci.employees
     FROM(
-        SELECT c.fips, c.name AS name, s.abbr, c.snow 
-        FROM county c
-        JOIN state s ON s.id = c.state
-        WHERE c.name LIKE '%mineral%' 
-            OR c.name LIKE '%coal%' 
-            OR c.name LIKE '%iron%'
+        SELECT 
+            c.fips, 
+            c.name AS 'name', 
+            s.abbr, 
+            c.snow 
+        FROM 
+            county c, 
+            state s
+        WHERE 
+            s.id = c.state
+            AND (c.name LIKE 'mineral%' 
+            OR c.name LIKE 'coal%' 
+            OR c.name LIKE 'iron%')
     ) Q, countyindustries ci, industry i
     WHERE ci.county = Q.fips
-        AND ci.industry = i.id 
-        AND i.id = 19
+        AND i.name = 'Mining, quarrying, and oil and gas extraction'
+        AND ci.industry = i.id
 ), Q2 AS(
-    SELECT c.fips, c.name, s.abbr, c.snow, NULL AS employees 
-    FROM county c
-    JOIN state s ON s.id = c.state
-    WHERE c.name LIKE '%mineral%' 
-        OR c.name LIKE '%coal%' 
-        OR c.name LIKE '%iron%'
+    SELECT 
+        c.fips, 
+        c.name, 
+        s.abbr, 
+        c.snow, 
+        NULL AS 'employees' 
+    FROM 
+        county c, 
+        state s
+    WHERE 
+        s.id = c.state
+        AND (c.name LIKE 'mineral%' 
+        OR c.name LIKE 'coal%' 
+        OR c.name LIKE 'iron%')
 )
-SELECT Q.name, Q.abbr, Q.employees
+SELECT 
+    Q.name, 
+    Q.abbr, 
+    Q.employees
 FROM(
-    SELECT Q2.name, Q2.abbr, Q2.snow, Q2.employees 
+    SELECT 
+        Q2.name, 
+        Q2.abbr, 
+        Q2.snow, 
+        Q2.employees 
     FROM Q2
-    WHERE Q2.fips NOT IN (SELECT Q1.fips FROM Q1)
+    WHERE Q2.fips NOT IN 
+        (SELECT Q1.fips FROM Q1)
     UNION
-    SELECT Q1.name, Q1.abbr, Q1.snow, Q1.employees 
+    SELECT 
+        Q1.name, 
+        Q1.abbr, 
+        Q1.snow, 
+        Q1.employees 
     FROM Q1
 ) Q
 ORDER BY Q.snow; 
