@@ -102,11 +102,46 @@ class TestCase05(unittest.TestCase):
 class TestCase06(unittest.TestCase):
     @timeout_decorator.timeout(25)
     def test_insertion(self):
-        btree = Index()
-        key = 12
+        leaf4 = Node(\
+            KeySet([97,99]),\
+            PointerSet([None]*3))
+        leaf3 = Node(\
+            KeySet([87, None]),\
+            PointerSet(None,None,leaf4))
+        leaf2 = Node(\
+            KeySet([66,None]),\
+            PointerSet([None,None,leaf3]))
+        leaf1 = Node(\
+            KeySet([27,None]),\
+            PointerSet([None,None,leaf2]))
+        leaf0 = Node(\
+            KeySet([7,9]),\
+            PointerSet([None,None,leaf1]))
+        parent1 = Node(\
+            KeySet([97]),\
+            PointerSet([leaf3,leaf4,None]))
+        parent0 = Node(\
+            KeySet([27,66]),\
+            PointerSet([leaf0,leaf1,leaf2]))
+        root = Node(\
+            KeySet([87,None]),\
+            PointerSet([parent0,parent1,None]))
+        btree = Index(root)
 
-
-        expected_output = Index()
+        key = 5
+        newLeaf0 = Node(\
+            KeySet([5,None]),\
+            PointerSet([None,None,leaf0]))
+        newParent0 = Node(\
+            KeySet([7,None]),\
+            PointerSet([newLeaf0,leaf0,None]))
+        newNextParent = Node(\
+            KeySet([66,None]),\
+            PointerSet([leaf1,leaf2,None]))
+        newRoot = Node(\
+            KeySet([27,87]),\
+            PointerSet([newParent0,newNextParent,leaf2]))
+        expected_output = Index(newRoot)
 
         self.assertEqual( expected_output, ImplementMe.InsertIntoIndex( btree, key ) )
 
@@ -366,12 +401,36 @@ class TestCase18(unittest.TestCase):
 class TestCase19(unittest.TestCase):
     @timeout_decorator.timeout(15)
     def test_unknown(self):
-        btree = Index()
-        key = 12
-        lower_bound = 12
-        upper_bound = 66
+        leaf4 = Node(\
+            KeySet([97,99]),\
+            PointerSet([None]*3))
+        leaf3 = Node(\
+            KeySet([87, None]),\
+            PointerSet(None,None,leaf4))
+        leaf2 = Node(\
+            KeySet([66,None]),\
+            PointerSet([None,None,leaf3]))
+        leaf1 = Node(\
+            KeySet([27,None]),\
+            PointerSet([None,None,leaf2]))
+        leaf0 = Node(\
+            KeySet([7,9]),\
+            PointerSet([None,None,leaf1]))
+        parent1 = Node(\
+            KeySet([97]),\
+            PointerSet([leaf3,leaf4,None]))
+        parent0 = Node(\
+            KeySet([27,66]),\
+            PointerSet([leaf0,leaf1,leaf2]))
+        root = Node(\
+            KeySet([87,None]),\
+            PointerSet([parent0,parent1,None]))
+        btree = Index(root)
+        key = 5
+        lower_bound = 1
+        upper_bound = 68
 
-        expected_output = [12,27]
+        expected_output = [5,7,9,27,66]
 
         self.assertEqual( expected_output, ImplementMe.RangeSearchInIndex(\
         ImplementMe.InsertIntoIndex( btree, key ), lower_bound, upper_bound ) )
