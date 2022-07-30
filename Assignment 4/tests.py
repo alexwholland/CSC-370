@@ -107,7 +107,7 @@ class TestCase06(unittest.TestCase):
             PointerSet([None]*3))
         leaf3 = Node(\
             KeySet([87, None]),\
-            PointerSet(None,None,leaf4))
+            PointerSet([None,None,leaf4]))
         leaf2 = Node(\
             KeySet([66,None]),\
             PointerSet([None,None,leaf3]))
@@ -118,7 +118,7 @@ class TestCase06(unittest.TestCase):
             KeySet([7,9]),\
             PointerSet([None,None,leaf1]))
         parent1 = Node(\
-            KeySet([97]),\
+            KeySet([97,None]),\
             PointerSet([leaf3,leaf4,None]))
         parent0 = Node(\
             KeySet([27,66]),\
@@ -140,7 +140,7 @@ class TestCase06(unittest.TestCase):
             PointerSet([leaf1,leaf2,None]))
         newRoot = Node(\
             KeySet([27,87]),\
-            PointerSet([newParent0,newNextParent,leaf2]))
+            PointerSet([newParent0,newNextParent,parent1]))
         expected_output = Index(newRoot)
 
         self.assertEqual( expected_output, ImplementMe.InsertIntoIndex( btree, key ) )
@@ -406,7 +406,7 @@ class TestCase19(unittest.TestCase):
             PointerSet([None]*3))
         leaf3 = Node(\
             KeySet([87, None]),\
-            PointerSet(None,None,leaf4))
+            PointerSet([None,None,leaf4]))
         leaf2 = Node(\
             KeySet([66,None]),\
             PointerSet([None,None,leaf3]))
@@ -417,7 +417,7 @@ class TestCase19(unittest.TestCase):
             KeySet([7,9]),\
             PointerSet([None,None,leaf1]))
         parent1 = Node(\
-            KeySet([97]),\
+            KeySet([97,None]),\
             PointerSet([leaf3,leaf4,None]))
         parent0 = Node(\
             KeySet([27,66]),\
