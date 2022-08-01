@@ -8,7 +8,7 @@
 
 import unittest
 import time
-#import timeout_decorator
+import timeout_decorator
 from node import *
 from index import *
 from implement_me import ImplementMe
@@ -16,7 +16,7 @@ from implement_me import ImplementMe
 
 # Insert into an empty tree
 class TestCase01(unittest.TestCase):
-    #@timeout_decorator.timeout(15)
+    @timeout_decorator.timeout(15)
     def test_insertion(self):
 
         root = Node()
@@ -34,7 +34,7 @@ class TestCase01(unittest.TestCase):
 
 # Insert existing key
 class TestCase02(unittest.TestCase):
-    #@timeout_decorator.timeout(15)
+    @timeout_decorator.timeout(15)
     def test_insertion(self):
 
         root = Node(\
@@ -54,7 +54,7 @@ class TestCase02(unittest.TestCase):
 
 # Insert into existing node that is not full
 class TestCase03(unittest.TestCase):
-    #@timeout_decorator.timeout(15)
+    @timeout_decorator.timeout(15)
     def test_insertion(self):
 
         root = Node(\
@@ -74,7 +74,7 @@ class TestCase03(unittest.TestCase):
 
 # Insert into full node.
 class TestCase04(unittest.TestCase):
-    #@timeout_decorator.timeout(15)
+    @timeout_decorator.timeout(15)
     def test_insertion(self):
 
         root = Node(\
@@ -85,10 +85,10 @@ class TestCase04(unittest.TestCase):
         key = 87
 
         leaf1 = Node(\
-            KeySet([66, None]),\
+            KeySet([87, 99]),\
             PointerSet([None]*Index.FAN_OUT))
         leaf0 = Node(\
-            KeySet([87, 99]),\
+            KeySet([66, None]),\
             PointerSet([None, None, leaf1]))
         newRoot = Node(\
             KeySet([87, None]),\
@@ -101,7 +101,7 @@ class TestCase04(unittest.TestCase):
 # Insert into full node with full parent, causing root split.
 # Not shown. To be designed by student.
 class TestCase05(unittest.TestCase):
-    #@timeout_decorator.timeout(25)
+    @timeout_decorator.timeout(25)
     def test_insertion(self):
 
         btree = Index()
@@ -114,7 +114,7 @@ class TestCase05(unittest.TestCase):
 
 # Insert into full node with full parent, but does not cause a root split.
 class TestCase06(unittest.TestCase):
-    #@timeout_decorator.timeout(25)
+    @timeout_decorator.timeout(25)
     def test_insertion(self):
 
         leaf4 = Node(\
@@ -182,7 +182,7 @@ class TestCase06(unittest.TestCase):
 
 # Insertion causes splits that propagates at least three times
 class TestCase07(unittest.TestCase):
-    #@timeout_decorator.timeout(25)
+    @timeout_decorator.timeout(25)
     def test_insertion(self):
 
         btree = Index()
@@ -196,7 +196,7 @@ class TestCase07(unittest.TestCase):
 
 # Boundary case: lookup smallest key in tree
 class TestCase08(unittest.TestCase):
-    #@timeout_decorator.timeout(15)
+    @timeout_decorator.timeout(15)
     def test_lookup(self):
 
         leaf1 = Node(\
@@ -220,7 +220,7 @@ class TestCase08(unittest.TestCase):
 # Boundary case: lookup largest key in tree
 # Fake data in first node to test complexity
 class TestCase09(unittest.TestCase):
-    #@timeout_decorator.timeout(15)
+    @timeout_decorator.timeout(15)
     def test_lookup(self):
 
         leaf1 = Node(\
@@ -244,7 +244,7 @@ class TestCase09(unittest.TestCase):
 # Lookup key outside range of tree's keys
 # Fake data in middle leaf to test complexity
 class TestCase10(unittest.TestCase):
-    #@timeout_decorator.timeout(15)
+    @timeout_decorator.timeout(15)
     def test_lookup(self):
 
         leaf1 = Node(\
@@ -268,7 +268,7 @@ class TestCase10(unittest.TestCase):
 # Lookup key within tree's range but not in tree
 # Fake data in one leaf to test complexity
 class TestCase11(unittest.TestCase):
-    #@timeout_decorator.timeout(15)
+    @timeout_decorator.timeout(15)
     def test_lookup(self):
 
         leaf1 = Node(\
@@ -290,7 +290,7 @@ class TestCase11(unittest.TestCase):
 
 # Lookup key strictly within the tree's range
 class TestCase12(unittest.TestCase):
-    #@timeout_decorator.timeout(15)
+    @timeout_decorator.timeout(15)
     def test_lookup(self):
 
         leaf1 = Node(\
@@ -313,7 +313,7 @@ class TestCase12(unittest.TestCase):
 
 # Range query fully contained in one leaf node
 class TestCase13(unittest.TestCase):
-    #@timeout_decorator.timeout(15)
+    @timeout_decorator.timeout(15)
     def test_range(self):
 
         leaf1 = Node(\
@@ -337,7 +337,7 @@ class TestCase13(unittest.TestCase):
 
 # Range query half-open to the left
 class TestCase14(unittest.TestCase):
-    #@timeout_decorator.timeout(15)
+    @timeout_decorator.timeout(15)
     def test_range(self):
 
         leaf1 = Node(\
@@ -361,7 +361,7 @@ class TestCase14(unittest.TestCase):
 
 # Range query half-open to the right
 class TestCase15(unittest.TestCase):
-    #@timeout_decorator.timeout(15)
+    @timeout_decorator.timeout(15)
     def test_range(self):
 
         leaf1 = Node(\
@@ -385,7 +385,7 @@ class TestCase15(unittest.TestCase):
 
 # Range query with matching upper and lower bound
 class TestCase16(unittest.TestCase):
-    #@timeout_decorator.timeout(15)
+    @timeout_decorator.timeout(15)
     def test_range(self):
 
         btree = Index()
@@ -400,7 +400,7 @@ class TestCase16(unittest.TestCase):
 
 # Multi-leaf range query in middle of tree
 class TestCase17(unittest.TestCase):
-    #@timeout_decorator.timeout(15)
+    @timeout_decorator.timeout(15)
     def test_range(self):
 
         btree = Index()
@@ -415,7 +415,7 @@ class TestCase17(unittest.TestCase):
 
 # Lookup recently added key
 class TestCase18(unittest.TestCase):
-    #@timeout_decorator.timeout(15)
+    @timeout_decorator.timeout(15)
     def test_unknown(self):
 
         btree = Index()
@@ -431,7 +431,7 @@ class TestCase18(unittest.TestCase):
 
 # Lookup range that includes recently added key
 class TestCase19(unittest.TestCase):
-    #@timeout_decorator.timeout(15)
+    @timeout_decorator.timeout(15)
     def test_unknown(self):
 
         leaf4 = Node(\
@@ -472,7 +472,7 @@ class TestCase19(unittest.TestCase):
 
 # Lookup range with nearly matching lower and upper bound equal to recently added key
 class TestCase20(unittest.TestCase):
-    #@timeout_decorator.timeout(15)
+    @timeout_decorator.timeout(15)
     def test_unknown(self):
 
         btree = Index()
