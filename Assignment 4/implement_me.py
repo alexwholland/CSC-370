@@ -62,8 +62,64 @@ class ImplementMe:
     Complexity: Guaranteed not to touch more nodes than the height
     of the tree and the number of leaves overlapping the interval.
     '''
-    return []
+    node = ImplementMe.findNode(index.root, lower_bound)
+    start_index = None
 
+    if ((ImplementMe.LookupKeyInIndex(index, lower_bound)) 
+      and lower_bound == upper_bound):
+      return [lower_bound]
+
+    for index, value in enumerate(node.keys.keys):
+      if value >= lower_bound:
+        start_index = index
+        break
+    
+    if start_index == None or node.keys.keys[start_index] >= upper_bound:
+      return []
+
+    key = node.keys.keys[start_index]
+    key_list = ImplementMe.getRange(upper_bound, node, start_index, key)      
+    key_list = list(filter(None, key_list))
+    return key_list
+
+
+  def getRange(upper_bound, node, start_index, key):
+    '''
+    Purpose:    Determine keys in the index within specified range
+    Parameters: upper_bound - the upper range
+                node - the node to be checked
+                start_index - the index of the node
+                key - the keys of the node
+    Return:     key_range - a list of keys in the specified range
+    '''
+    key_range = [key]
+    while key < upper_bound:
+      if start_index == 0:
+        start_index += 1
+        key = node.keys.keys[1]
+        if key is None:
+          key = node.keys.keys[0]
+          continue
+      else:
+        node = node.pointers.pointers[2]
+        if node is None:
+          return key_range
+        start_index = 0
+        key = node.keys.keys[0]
+      ImplementMe.addKey(key, upper_bound, key_range)
+    return key_range
+
+
+  def addKey(key, upper_bound, key_range):
+    '''
+    Purpose:    Adds a key to the list of keys if it's
+                within range
+    Parameters: key - the key to be added
+                upper_bound - the maximum range that the key can be in
+                key_range - a list of keys that are within the bounded range
+    '''
+    if key < upper_bound:
+      key_range.append(key)
 
   def isLeafNode( node ):
     '''
