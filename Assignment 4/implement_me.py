@@ -17,21 +17,17 @@ class ImplementMe:
     Because the tree is balanced, it is also asymptotically logarithmic in the
     number of keys that already exist in the index.
     '''
-    # Return original tree if already exists
     if (ImplementMe.LookupKeyInIndex(index, key)):
       return index
 
-    # Find where to insert key
     cur_node = ImplementMe.findNode(index.root, key)
     
-    # Insert into leaf
     if ImplementMe.isNodeFull(cur_node):
       # Overflow 
       root = ImplementMe.splitNode(index.root, cur_node, key)   
       return Index(root)
 
     else:
-      # No Overflow
       for i, value in enumerate(cur_node.keys.keys):
         if value == None:
           cur_node.keys.keys[i] = key
