@@ -3,19 +3,20 @@
 from index import *
 import math
 
-# You should implement all of the static functions declared
-# in the ImplementMe class and submit this (and only this!) file.
+
 class ImplementMe:
 
-  # Returns a B+-tree obtained by inserting a key into a pre-existing
-  # B+-tree index if the key is not already there. If it already exists,
-  # the return value is equivalent to the original, input tree.
-  #
-  # Complexity: Guaranteed to be asymptotically linear in the height of the tree
-  # Because the tree is balanced, it is also asymptotically logarithmic in the
-  # number of keys that already exist in the index.
   @staticmethod
   def InsertIntoIndex( index, key ):
+    '''
+    Returns a B+-tree obtained by inserting a key into a pre-existing
+    B+-tree index if the key is not already there. If it already exists,
+    the return value is equivalent to the original, input tree.
+    
+    Complexity: Guaranteed to be asymptotically linear in the height of the tree
+    Because the tree is balanced, it is also asymptotically logarithmic in the
+    number of keys that already exist in the index.
+    '''
     # Return original tree if already exists
     if (ImplementMe.LookupKeyInIndex(index, key)):
       return index
@@ -40,48 +41,88 @@ class ImplementMe:
     return index
 
 
-  # Returns a boolean that indicates whether a given key
-  # is found among the leaves of a B+-tree index.
-  #
-  # Complexity: Guaranteed not to touch more nodes than the
-  # height of the tree
   @staticmethod
   def LookupKeyInIndex( index, key ):
+    '''
+    Returns a boolean that indicates whether a given key
+    is found among the leaves of a B+-tree index.
+  
+    Complexity: Guaranteed not to touch more nodes than the
+    height of the tree
+    '''
     return (ImplementMe.findNode(index.root, key)).keys.keys.count(key) != 0
 
 
-  # Returns a list of keys in a B+-tree index within the half-open
-  # interval [lower_bound, upper_bound)
-  #
-  # Complexity: Guaranteed not to touch more nodes than the height
-  # of the tree and the number of leaves overlapping the interval.
   @staticmethod
   def RangeSearchInIndex( index, lower_bound, upper_bound ):
+    '''
+    Returns a list of keys in a B+-tree index within the half-open
+    interval [lower_bound, upper_bound)
+  
+    Complexity: Guaranteed not to touch more nodes than the height
+    of the tree and the number of leaves overlapping the interval.
+    '''
     return []
 
 
-  # Helper Functions:
   def isLeafNode( node ):
+    '''
+    Purpose:    Checks if a node is a leaf
+    Parameters: node - the current node to be checked
+    Returns:    True - if node is a not a leaf
+                False - if node is a leaf
+    '''
     return node.pointers.pointers[0] is not None
 
 
   def isNodeFull( node ):
+    '''
+    Purpose:    Checks if a node is full
+    Parameters: node - the current node to be checked
+    Returns:    True - if node is full
+                False - if node is not full
+    '''
     return node.keys.keys.count(None) == 0
   
 
   def sortNode(list):
+    '''
+    Purpose:    Sort the values in the node
+    Parameters: list - a list of values in the node
+    Returns:    a sorted list of values
+    '''
     return sorted(list, key=lambda x: (x is None, x))
 
 
-  def newRoot(lc, rc, key):
-    return Node(keys=KeySet([key, None]), pointers=PointerSet([lc, rc, None]))
+  def newRoot(left_point, mid_point, key):
+    '''
+    Purpose:    creates a new root
+    Parameters: left_point - where to point the leftmost pointer
+                mid_point - where to point the middle pointer
+                key - the nodes key
+    Returns:    the new Node() root           
+    '''
+    return Node(keys=KeySet([key, None]), 
+      pointers=PointerSet([left_point, mid_point, None]))
+
 
   def splitIndex():
+    '''
+    Purpose:    split the index of the node by taking the 
+                ceiling of a division by 2.
+    Parameters: N/A
+    Returns:    the index number to split the node at
+    '''
     return math.ceil(Index.NUM_KEYS/2)
 
 
-  def getParentRec(cur_node, child):
-    # Basecase
+  def getParent(cur_node, child):
+    '''
+    Purpose:    Get the parent node information
+    Parameters: cur_node - current node to check
+                child - child of the cur_node
+    Returns:    parent node information
+    '''
     for p in cur_node.pointers.pointers:
       if p is None:
         continue
@@ -91,14 +132,18 @@ class ImplementMe:
     for index, key in enumerate(cur_node.keys.keys):
       if (key is None or key > child.keys.keys[0]):
         cur_node = cur_node.pointers.pointers[index]
-        return ImplementMe.getParentRec(cur_node, child)
+        return ImplementMe.getParent(cur_node, child)
 
-    return ImplementMe.getParentRec(cur_node.pointers.pointers[Index.NUM_KEYS], child)
+    return ImplementMe.getParent(cur_node.pointers.pointers[Index.NUM_KEYS], child)
 
 
-
-  # returns node that key should be added to or key is inside.
   def findNode(root, key):
+    '''
+    Purpose:    Finds a node to place a key
+    Parameters: root - the root of the B+ tree
+                key - the key to find or place in the B+ tree
+    Reuturn:    the node where the key must be contained          
+    '''
     cur_node = root 
     while(ImplementMe.isLeafNode(cur_node)):
       for index, value in enumerate(cur_node.keys.keys):
@@ -112,14 +157,26 @@ class ImplementMe:
 
 
   def createTempNodes(node, key):
+    '''
+    Purpose:    Create a temporary node when adjusting the B+ tree
+    Parameters: node - a node to be made into a temporary node
+                key - key of the node
+    Returns:    B+ tree with the temporary node
+    '''
     temp_nodes = node.keys.keys.copy()
     temp_nodes.append(key)        
     temp_nodes = ImplementMe.sortNode(temp_nodes)
-
     return Node(), temp_nodes, ImplementMe.splitIndex(), 0
 
   
   def connectPointers(key_index, node, new_node, new_child):
+    '''
+    Purpose:    Connect the pointers of newely constructed nodes
+    Parameters: key_index - index of the node
+                node - pre-existing node
+                new_node - the new node to be connected to the B+ tree
+                new_child - the new child node 
+    '''
     if key_index == 0:
       new_node.pointers.pointers[0] = node.pointers.pointers[1]
       new_node.pointers.pointers[1] = node.pointers.pointers[2]
@@ -134,16 +191,38 @@ class ImplementMe:
     
 
   def shiftKeys(node, index, key):
+    '''
+    Purpose:    shift keys to add new element
+    Parameters: node - the node with keys to shift
+                index - the index of the node
+                key - the keys to shift
+    '''
     for i in range(Index.NUM_KEYS - 1, index, -1): 
       node.keys.keys[i] = node.keys.keys[i - 1]
     node.keys.keys[index] = key
   
+
   def shiftPointers(node, index, new_child):
+    '''
+    Purpose:    shift pointers to add new element
+    Parameters: node - the node with pointers to shift
+                index - the index of the node 
+                new_child - the new child to point to
+    '''
     for idx in range(Index.FAN_OUT -1, index + 1, -1):
       node.pointers.pointers[idx] = node.pointers.pointers[idx - 1]
     node.pointers.pointers[index + 1] = new_child
 
+
   def noOverflow(node, key, child):
+    '''
+    Purpose:    If theres no insertion overflow,
+                insert direclty into the node
+    Parameter:  node - the node to insert to
+                key - the key to insert
+                child - child of the node to be pointed to
+    Returns:    index of insertion
+    '''
     insert_idx = None
     for index, value in enumerate(node.keys.keys):
       if value == None:
@@ -154,12 +233,23 @@ class ImplementMe:
         continue
     return insert_idx
 
-  def allocateNode(node, temp_nodes, split_idx, new_node, new_index, split):
+
+  def allocateNode(node, temp_nodes, split_index, new_node, new_index, split):
+    '''
+    Purpose:    Insert into a node after a split
+    Parameters: node - the old node that has been split
+                temp_nodes - the temporary nodes used for B+ restructuring
+                split_index - the index to split the node
+                new_node - the new node created
+                new_index - the index of the new node
+                split - determines if a split occurred
+    Returns:    key of the parent if a split occurred
+    '''
     parent_key = None
     for index, value in enumerate(temp_nodes):
-      if index < split_idx:
+      if index < split_index:
         node.keys.keys[index] = value
-      elif index == split_idx and split == True:
+      elif index == split_index and split == True:
         parent_key = value
         node.keys.keys[index] = None
       else:
@@ -170,8 +260,15 @@ class ImplementMe:
     return parent_key
 
 
-  def internalSplit(root, node, new_child, key):
-    # splits keys into node and new_node
+  def splitTree(root, node, new_child, key):
+    '''
+    Purpose:    Splits keys into the previous node and a new node
+    Parameters: root - root of the B+ tree
+                node - the original node before being split
+                new_child - the new child created
+                key - the key of the nodes
+    Return:     root - the new root after the split
+    '''
     if ImplementMe.isNodeFull(node):
       new_node, temp_list, split_idx, new_idx = ImplementMe.createTempNodes(node, key)
       new_key_idx = temp_list.index(key)
@@ -182,16 +279,30 @@ class ImplementMe:
       insert_idx = ImplementMe.noOverflow(node, key, new_child) 
       ImplementMe.shiftKeys(node, insert_idx, key)
       ImplementMe.shiftPointers(node, insert_idx, new_child)
-
     return root 
 
 
   def moveKey(node, root, new_node, parent): 
+    '''
+    Purpose:    Move the key up the tree
+    Parameters: node - the orginal node
+                root - the root of the B+ tree
+                new_node - the new node for the key
+                parent - the parent of the node
+    Return      the new root
+    '''
     return (ImplementMe.newRoot(node, new_node, parent) if node == root 
-    else ImplementMe.internalSplit(root, ImplementMe.getParentRec(root, node), new_node, parent))   
+    else ImplementMe.splitTree(root, ImplementMe.getParent(root, node), new_node, parent))   
 
-  # Splits node and returns updated tree. Works for all overflow cases
+
   def splitNode(root, node, key):
+    '''
+    Purpose:    Splits nodes that need to be inserted too and are full
+    Parameters: root - the root of the B+ tree      
+                node - the node to be split
+                key - the key to insert once the node has been split
+    Returns:    the new B+ tree
+    '''
     new_node, temp_list, split_idx, new_idx = ImplementMe.createTempNodes(node, key)
       
     ImplementMe.allocateNode(node, temp_list, split_idx, new_node, new_idx, False)
@@ -200,3 +311,4 @@ class ImplementMe:
     node.pointers.pointers[Index.FAN_OUT-1] = new_node
 
     return ImplementMe.moveKey(node, root, new_node, new_node.keys.keys[0])
+    
