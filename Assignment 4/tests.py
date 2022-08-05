@@ -8,7 +8,7 @@
 
 import unittest
 import time
-import timeout_decorator
+#import timeout_decorator
 from node import *
 from index import *
 from implement_me import ImplementMe
@@ -16,7 +16,7 @@ from implement_me import ImplementMe
 
 # Insert into an empty tree
 class TestCase01(unittest.TestCase):
-    @timeout_decorator.timeout(15)
+    # @timeout_decorator.timeout(15)
     def test_insertion(self):
 
         root = Node()
@@ -34,7 +34,7 @@ class TestCase01(unittest.TestCase):
 
 # Insert existing key
 class TestCase02(unittest.TestCase):
-    @timeout_decorator.timeout(15)
+    # @timeout_decorator.timeout(15)
     def test_insertion(self):
 
         root = Node(\
@@ -54,7 +54,7 @@ class TestCase02(unittest.TestCase):
 
 # Insert into existing node that is not full
 class TestCase03(unittest.TestCase):
-    @timeout_decorator.timeout(15)
+    # @timeout_decorator.timeout(15)
     def test_insertion(self):
 
         root = Node(\
@@ -74,7 +74,7 @@ class TestCase03(unittest.TestCase):
 
 # Insert into full node.
 class TestCase04(unittest.TestCase):
-    @timeout_decorator.timeout(15)
+    # @timeout_decorator.timeout(15)
     def test_insertion(self):
 
         root = Node(\
@@ -101,20 +101,56 @@ class TestCase04(unittest.TestCase):
 # Insert into full node with full parent, causing root split.
 # Not shown. To be designed by student.
 class TestCase05(unittest.TestCase):
-    @timeout_decorator.timeout(25)
-    def test_insertion(self):
+    # @timeout_decorator.timeout(25)
+    def test_insertion(self):      
+        
+        leaf2 = Node(\
+          KeySet([95, 97]),\
+          PointerSet([None, None, None]))
+        leaf1 = Node(\
+          KeySet([87, None]),\
+          PointerSet([None, None, leaf2]))
+        leaf0 = Node(\
+          KeySet([65, None]),\
+          PointerSet([None, None, leaf1]))
+        root = Node(\
+          KeySet([87, 95]),\
+          PointerSet([leaf0, leaf1, leaf2]))
 
-        btree = Index()
-        key = 99
+        btree = Index( root )
+        key = 201       
 
-        expected_output = Index()
+        new_leaf3 = Node(\
+          KeySet([97, 201]),\
+          PointerSet([None, None, None]))
+        new_leaf2 = Node(\
+          KeySet([95, None]),\
+          PointerSet([None, None, new_leaf3]))
+        new_leaf1 = Node(\
+          KeySet([87, None]),\
+          PointerSet([None, None, new_leaf2]))
+        new_leaf0 = Node(\
+          KeySet([65, None]),\
+          PointerSet([None, None, new_leaf1]))
+        new_parent1 = Node(\
+          KeySet([97, None]),\
+          PointerSet([new_leaf2, new_leaf3, None]))
+        new_parent0 = Node(\
+          KeySet([87, None]),\
+          PointerSet([new_leaf0, new_leaf1, None]))
+        new_root = Node(\
+          KeySet([95, None]),\
+          PointerSet([new_parent0, new_parent1, None]))
+
+        expected_output = Index( new_root )
 
         self.assertEqual( expected_output, ImplementMe.InsertIntoIndex( btree, key ) )
+        
 
 
 # Insert into full node with full parent, but does not cause a root split.
 class TestCase06(unittest.TestCase):
-    @timeout_decorator.timeout(25)
+    # @timeout_decorator.timeout(25)
     def test_insertion(self):
 
         leaf4 = Node(\
@@ -177,26 +213,105 @@ class TestCase06(unittest.TestCase):
             PointerSet([newParent0,newParent1,newParent2]))
         expected_output = Index(newRoot)
 
+        # print(ImplementMe.InsertIntoIndex( btree, key ))
+        # print(expected_output)
         self.assertEqual( expected_output, ImplementMe.InsertIntoIndex( btree, key ) )
 
 
 # Insertion causes splits that propagates at least three times
 class TestCase07(unittest.TestCase):
-    @timeout_decorator.timeout(25)
+    # @timeout_decorator.timeout(25)
     def test_insertion(self):
+        leaf6 = Node(\
+            KeySet([101,103]),\
+            PointerSet([None]*Index.FAN_OUT))
+        leaf5 = Node(\
+            KeySet([97,None]),\
+            PointerSet([None,None,leaf6]))
+        leaf4 = Node(\
+            KeySet([87, None]),\
+            PointerSet([None,None,leaf5]))
+        leaf3 = Node(\
+            KeySet([66,None]),\
+            PointerSet([None,None,leaf4]))
+        leaf2 = Node(\
+            KeySet([27,None]),\
+            PointerSet([None,None,leaf3]))
+        leaf1 = Node(\
+            KeySet([7,None]),\
+            PointerSet([None,None,leaf2]))
+        leaf0 = Node(\
+            KeySet([5,None]),\
+            PointerSet([None,None,leaf1]))
+        parent2 = Node(\
+          KeySet([97,101]),\
+          PointerSet([leaf4,leaf5,leaf6]))
+        parent1 = Node(\
+          KeySet([66,None]),\
+          PointerSet([leaf2,leaf3,None]))
+        parent0 = Node(\
+          KeySet([7,None]),\
+          PointerSet([leaf0,leaf1,None]))
+        root = Node(\
+          KeySet([27,87]),\
+          PointerSet([parent0,parent1,parent2]))
+        btree = Index(root)
 
-        btree = Index()
+        key = 102
 
-        key = 12
-
-        expected_output = Index()
+        newLeaf7 = Node(\
+            KeySet([102,103]),\
+            PointerSet([None]*Index.FAN_OUT))
+        newLeaf6 = Node(\
+            KeySet([101,None]),\
+            PointerSet([None,None,newLeaf7]))
+        newLeaf5 = Node(\
+            KeySet([97,None]),\
+            PointerSet([None,None,newLeaf6]))
+        newLeaf4 = Node(\
+            KeySet([87, None]),\
+            PointerSet([None,None,newLeaf5]))
+        newLeaf3 = Node(\
+            KeySet([66,None]),\
+            PointerSet([None,None,newLeaf4]))
+        newLeaf2 = Node(\
+            KeySet([27,None]),\
+            PointerSet([None,None,newLeaf3]))
+        newLeaf1 = Node(\
+            KeySet([7,None]),\
+            PointerSet([None,None,newLeaf2]))
+        newLeaf0 = Node(\
+            KeySet([5,None]),\
+            PointerSet([None,None,newLeaf1]))
+        newParent3 = Node(\
+            KeySet([102,None]),\
+            PointerSet([newLeaf6,newLeaf7,None]))
+        newParent2 = Node(\
+            KeySet([97,None]),\
+            PointerSet([newLeaf4,newLeaf5,None]))
+        newParent1 = Node(\
+            KeySet([66,None]),\
+            PointerSet([newLeaf2,newLeaf3,None]))
+        newParent0 = Node(\
+            KeySet([7,None]),\
+            PointerSet([newLeaf0,newLeaf1,None]))
+        newGParent1 = Node(\
+            KeySet([101,None]),\
+            PointerSet([newParent2,newParent3,None]))
+        newGParent0 = Node(\
+            KeySet([27,None]),\
+            PointerSet([newParent0,newParent1,None]))
+        newRoot = Node(\
+            KeySet([87,None]),\
+            PointerSet([newGParent0,newGParent1,None]))
+        expected_output = Index(newRoot)
 
         self.assertEqual( expected_output, ImplementMe.InsertIntoIndex( btree, key ) )
 
 
 # Boundary case: lookup smallest key in tree
 class TestCase08(unittest.TestCase):
-    @timeout_decorator.timeout(15)
+    # @timeout_decorator.timeout(15)
     def test_lookup(self):
 
         leaf1 = Node(\
@@ -220,7 +335,7 @@ class TestCase08(unittest.TestCase):
 # Boundary case: lookup largest key in tree
 # Fake data in first node to test complexity
 class TestCase09(unittest.TestCase):
-    @timeout_decorator.timeout(15)
+    # @timeout_decorator.timeout(15)
     def test_lookup(self):
 
         leaf1 = Node(\
@@ -244,7 +359,7 @@ class TestCase09(unittest.TestCase):
 # Lookup key outside range of tree's keys
 # Fake data in middle leaf to test complexity
 class TestCase10(unittest.TestCase):
-    @timeout_decorator.timeout(15)
+    # @timeout_decorator.timeout(15)
     def test_lookup(self):
 
         leaf1 = Node(\
@@ -268,7 +383,7 @@ class TestCase10(unittest.TestCase):
 # Lookup key within tree's range but not in tree
 # Fake data in one leaf to test complexity
 class TestCase11(unittest.TestCase):
-    @timeout_decorator.timeout(15)
+    # @timeout_decorator.timeout(15)
     def test_lookup(self):
 
         leaf1 = Node(\
@@ -290,7 +405,7 @@ class TestCase11(unittest.TestCase):
 
 # Lookup key strictly within the tree's range
 class TestCase12(unittest.TestCase):
-    @timeout_decorator.timeout(15)
+    # @timeout_decorator.timeout(15)
     def test_lookup(self):
 
         leaf1 = Node(\
@@ -313,7 +428,7 @@ class TestCase12(unittest.TestCase):
 
 # Range query fully contained in one leaf node
 class TestCase13(unittest.TestCase):
-    @timeout_decorator.timeout(15)
+    # @timeout_decorator.timeout(15)
     def test_range(self):
 
         leaf1 = Node(\
@@ -337,7 +452,7 @@ class TestCase13(unittest.TestCase):
 
 # Range query half-open to the left
 class TestCase14(unittest.TestCase):
-    @timeout_decorator.timeout(15)
+    # @timeout_decorator.timeout(15)
     def test_range(self):
 
         leaf1 = Node(\
@@ -361,7 +476,7 @@ class TestCase14(unittest.TestCase):
 
 # Range query half-open to the right
 class TestCase15(unittest.TestCase):
-    @timeout_decorator.timeout(15)
+    # @timeout_decorator.timeout(15)
     def test_range(self):
 
         leaf1 = Node(\
@@ -385,37 +500,55 @@ class TestCase15(unittest.TestCase):
 
 # Range query with matching upper and lower bound
 class TestCase16(unittest.TestCase):
-    @timeout_decorator.timeout(15)
+    # @timeout_decorator.timeout(15)
     def test_range(self):
 
-        btree = Index()
+        leaf1 = Node(\
+            KeySet([87, 99]),\
+            PointerSet([None]*Index.FAN_OUT))
+        leaf0 = Node(\
+            KeySet([41, 68]),\
+            PointerSet([None, None, leaf1]))
+        root = Node(\
+            KeySet([87, None]),\
+            PointerSet([leaf0, leaf1, None]))
+        btree = Index( root )
 
-        lower_bound = 7
-        upper_bound = 7
+        lower_bound = 41
+        upper_bound = 41
 
-        expected_output = []
+        expected_output = [41]
 
         self.assertEqual( expected_output, ImplementMe.RangeSearchInIndex( btree, lower_bound, upper_bound ) )
 
 
 # Multi-leaf range query in middle of tree
 class TestCase17(unittest.TestCase):
-    @timeout_decorator.timeout(15)
+    # @timeout_decorator.timeout(15)
     def test_range(self):
 
-        btree = Index()
+        leaf1 = Node(\
+            KeySet([87, 99]),\
+            PointerSet([None]*Index.FAN_OUT))
+        leaf0 = Node(\
+            KeySet([41, 68]),\
+            PointerSet([None, None, leaf1]))
+        root = Node(\
+            KeySet([87, None]),\
+            PointerSet([leaf0, leaf1, None]))
+        btree = Index( root )
 
-        lower_bound = 42
-        upper_bound = 87
+        lower_bound = 0
+        upper_bound = 100
 
-        expected_output = []
+        expected_output = [41, 68, 87, 99]
 
         self.assertEqual( expected_output, ImplementMe.RangeSearchInIndex( btree, lower_bound, upper_bound ) )
 
 
 # Lookup recently added key
 class TestCase18(unittest.TestCase):
-    @timeout_decorator.timeout(15)
+    # @timeout_decorator.timeout(15)
     def test_unknown(self):
 
         btree = Index()
@@ -428,10 +561,9 @@ class TestCase18(unittest.TestCase):
         ImplementMe.InsertIntoIndex( btree, key ), key ) )
 
 
-
 # Lookup range that includes recently added key
 class TestCase19(unittest.TestCase):
-    @timeout_decorator.timeout(15)
+    # @timeout_decorator.timeout(15)
     def test_unknown(self):
 
         leaf4 = Node(\
@@ -472,10 +604,34 @@ class TestCase19(unittest.TestCase):
 
 # Lookup range with nearly matching lower and upper bound equal to recently added key
 class TestCase20(unittest.TestCase):
-    @timeout_decorator.timeout(15)
+    # @timeout_decorator.timeout(15)
     def test_unknown(self):
 
-        btree = Index()
+        leaf4 = Node(\
+            KeySet([97,99]),\
+            PointerSet([None]*Index.FAN_OUT))
+        leaf3 = Node(\
+            KeySet([87, None]),\
+            PointerSet([None,None,leaf4]))
+        leaf2 = Node(\
+            KeySet([66,None]),\
+            PointerSet([None,None,leaf3]))
+        leaf1 = Node(\
+            KeySet([27,None]),\
+            PointerSet([None,None,leaf2]))
+        leaf0 = Node(\
+            KeySet([7,9]),\
+            PointerSet([None,None,leaf1]))
+        parent1 = Node(\
+            KeySet([97,None]),\
+            PointerSet([leaf3,leaf4,None]))
+        parent0 = Node(\
+            KeySet([27,66]),\
+            PointerSet([leaf0,leaf1,leaf2]))
+        root = Node(\
+            KeySet([87,None]),\
+            PointerSet([parent0,parent1,None]))
+        btree = Index(root)
 
         key = 12
         lower_bound = 12
