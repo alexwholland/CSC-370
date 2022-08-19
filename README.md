@@ -26,12 +26,11 @@ theoretical computer science, programming, and computer systems.
   - write SQL queries with varied complexity to extract desired information from a relational database
   - optimise SQL queries towards simplicity
   
-**Assignment 4 - SQL Golf**
+**Assignment 4 - B+ Tree Implementation**
 
 - demonstrate knowledge of some query optimisation concepts, particularly how B+-tree indexes work:
   - implement a B+-tree that handles insertions
   - implement efficient queries on the B+-tree
-
 
 
 ## Topics
