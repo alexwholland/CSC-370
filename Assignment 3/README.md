@@ -69,23 +69,6 @@ Alongside the `.sql` file will be a `.tsv` file showing the expected result, whi
 
 You should submit all fifteen of the `.sql` files _without renaming them_, but after replacing the final comment line with an actual SQL query that achieves the stated objective. Ordinarily, you should submit fifteen `.sql` files, though it is okay to submit fewer files if you do not have a solution for all fifteen tests.
 
-## Evaluation
-
-Your grade on the assignment will be the sum of your scores on each query. This could be in excess of 15 (i.e., full marks), particularly if you minimise your queries more effectively than the teaching team has. However, to receive any marks on a particular query, you *must* produce the correct result, including attribute names. We will ascertain this by performing a `diff` between the corresponding `.tsv` file and your query results on an up-to-date MySQL instance prior to counting operators, similar to:
-
-```bash
-sudo mysql -u root counties < query01.sql > query01-your-solution.tsv
-diff query01-solution.tsv query01-your-solution.tsv
-```
-
-In the running example, the first query would score 1.0 marks and the second query would score 0.8 marks. If you can answer the query with fewer operator instances than the first query, you would score 1.1 marks. The following query would obtain 0.0 marks, even though the number of operators is small, because it does not produce the same result (namely, it doesn't filter by department):
-
-```sql
-SELECT `employee_name`
-FROM `Employee`;
-```
-
-Note that we may modify our testing dataset to avoid hard-coded solutions, such as by changing the id values of or deleting tuples. You should not make assumptions (e.g., of uniqueness or non-nulls) that are not supported by the data model in the CREATE TABLE statements below. Moreover, if you create temporary files, you are responsible for monitoring their existence: there is no guarantee that we will run queries in numerical order.
 
 ## Dataset
 
@@ -102,26 +85,3 @@ mysql -u [username] -p counties < counties.sql
 Finally, you can also access a read-only, pre-populated version of this database on port 3306 and server csc370db.csc.uvic.ca. The server is only available from within the firewall; so, you must first connect to the intranet via VPN or to linux.csc.uvic.ca via SSH. 
 
 
-## Queries
-
-The queries are available in two locations:
-
-  * You can access them on [the public-facing GitHub repo](https://github.com/sean-chester/relational-databases/sql) for this course's assignments. The advantages to this source are that it is the freshest (first place updates are pushed) and that you can directly check out the code with `git`, which might be an easier toolchain
-  * You can access them by downloading the compressed tarball that is attached to this assignment description and unpack it locally.
-
-Remember to edit and upload the `.sql` files and to use the `.tsv` files to check the correctness of your solutions.
-
-
-## Sources and Academic Integrity
-
-You are permitted to use sources that you find on the Internet, so long as the source is clearly dated with a last edit prior to 1-January-2022 and you provide a citation in your source code. For example, GitHub and StackOverflow content is permitted, so long as they are clearly dated prior to this year. If you do not include a citation in your source code, your work will be considered plagiarism.
-
-You must otherwise complete the assignment independently, including the development of pseudocode. Submissions may be subjected to plagiarism detection software and evidence of collaboration will be reported as an Academic Integrity infringement. You are welcome to prepare for the assignment with peers in the class by working through the ungraded worksheets together, which are designed to prepare you well for this assignment.
-
-## Illness, Lateness, Technical Issues, and Personal Circumstances
-
-Submissions will be accepted until the _end date_ of the assignment listed in Brightspace, which provides a three day buffer to address most challenges that are likely to arise. Note that support for the assignment will not be available after the deadline, however. Submissions will not be accepted after the _end date_; if you have not submitted code by then, whether by choice or circumstances, the weight for this assignment will be shifted to the corresponding midterm exam.
-
-## Summary
-
-I hope that this assignment is a fun way to learn and/or practice the SQL query language. Good luck!
