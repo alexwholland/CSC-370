@@ -21,3 +21,17 @@ Be careful that there is more than one possible decomposition for a given input,
 Note that R1(ABC), R2(ABD), and R3(DE) is not a correct solution, even though this decomposition is in BCNF, because you would not arrive at it using the decomposition algorithm in the textbook. (It has been decomposed unnecessarily much.) Your program should output -1 on this input.
 
 As a third example, given R(A,B,C) and functional dependency AB→C, your program should output 0, because the input is already in BCNF.  
+
+## Build Instructions
+
+This project uses Python3 and can be run in any environment that supports Python3 (e.g., command line interpreter or Jupyter Notebook). There are no specific build requirements; you can simply run the test suite by executing the main method in `tests.py`
+```
+python3 ./tests.py
+```
+
+## Dependencies
+
+In order to run this code, you will need:
+
+  * Python3 (python2 is not guaranteed to be supported)
+  * The `timeout-decorator` package if you want to confirm time-outs under 15s (or you can comment out those lines)
